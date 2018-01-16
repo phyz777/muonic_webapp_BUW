@@ -1,0 +1,119 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} Dashboard 1 {% endblock title %}
+
+{% block stylesheets %}
+  {{ block.super }}
+{% endblock stylesheets %}
+
+{% block sidebar_class %}nav-md menu_fixed{% endblock sidebar_class %}
+
+{% block content %}
+  <div class="right_col" role="main">
+
+    <div class="">
+
+      <div class="page-title">
+        <div class="title_left">
+          <h3>Dashboard <small>Overview of Muonic activities</small></h3>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="clearfix"></div>
+
+      <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Runs </h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                </li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a>
+                </li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <p class="text-muted font-13 m-b-30">
+                Click on a run to see the corresponding plots.
+              </p>
+              <table id="datatable" class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Run ID</th>
+                    <th>User</th>
+                    <th>Active</th>
+                    <th>Simulation</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <!--{% for run in runs %}
+                    <tr>
+                      <td><a href="run_details.html?run_id={{ run.run_id }}">{{ run.run_id }}</a></td>
+                      <td>{{ run.user.username }}</td>
+                      <td>{{ run.simulation }}</td>
+                      <td>{{ run.active }}</td>
+                      <td>{{ run.ts }}</td>
+                    </tr>
+                  {% endfor %}-->
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ block.super}}
+  <!-- DataTables -->
+  <script src="/static/vendors/datatables.net/js/jquery.dataTables.min.js"></script>
+  <script src="/static/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+  <script src="/static/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+
+  <script type="application/javascript" language="JavaScript">
+
+    $(document).ready(function() {
+
+        //$('#datatable').DataTable();
+        $('#datatable').DataTable({
+            //serverSide: true,
+            ajax: {
+                url: 'http://localhost:8000/api/muonic/runs/',
+                dataSrc: 'results'
+            },
+            ordering: true,
+            order: [[ 4, 'desc' ]],
+            /*columnDefs: [{
+              targets: 0,
+              render: function ( data, type, row, meta ) {
+                  var id = row[0];
+                  var active = row[3];
+                  return '<a href="run_details.html?run_id='+ data +'&active='+ active +'">' + data + '</a>';
+              }
+            }],*/
+            columns: [
+                { data: function (row, type, set, meta) {
+                    return '<a href="run_details.html?run_id='+ row['run_id'] +'&active='+ row['active'] +'">' + row['run_id'] + '</a>';
+                } },
+                //{ data: 'run_id'},
+                { data: 'user' },
+                { data: 'active' },
+                { data: 'simulation' },
+                { data: 'ts' }
+            ]
+        });
+
+    });
+
+  </script>
+{% endblock javascripts %}

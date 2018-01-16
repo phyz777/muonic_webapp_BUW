@@ -1,0 +1,388 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} Create Run {% endblock title %}
+
+{% block stylesheets %}
+  {{ block.super }}
+  <link href="/static/vendors/pnotify/dist/pnotify.css" rel="stylesheet">
+  <link href="/static/vendors/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
+  <link href="/static/vendors/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">
+{% endblock stylesheets %}
+
+<!--{% block sidebar_class %}nav-md menu_fixed{% endblock sidebar_class %}-->
+
+{% block content %}
+  <div class="right_col" role="main">
+
+    <div class="">
+
+      <div class="page-title">
+        <div class="title_left">
+          <h3>Create Run <small>{{ request.GET.run_id }}</small></h3>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="clearfix"></div>
+
+
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+      <div class="x_panel">
+            <div class="x_title">
+              <h2>Run Options <small>Select Options</small></h2>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <br />
+            <form class="form-horizontal form-label-left" id="run-form" data-parsley-validate>
+              Date and Time
+              <fieldset>
+                  <div class="input-group input-group-md col-md-8">
+                  <div class="controls">
+                      <div class='input-prepend input-group date' id='datetimepicker1'>
+                          <label class="input-group-addon" for="start-time">Start</label>
+                          <input type='text' class="form-control" id="start-time" />
+                          <span class="add-on input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                          </span>
+                      </div>
+                  </div>
+                  </div>
+
+                  <div class="input-group input-group-md col-md-8">
+                    <label class="input-group-addon" for="duration">Duration</label>
+                    <input type="text" class="form-control" id="duration" placeholder="[ seconds ]">
+                    <!--<span class="input-group-addon">sec</span>-->
+                    <span class="add-on input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                  </div>
+              </fieldset>
+              <fieldset>
+                <div class="form-group">
+                  <label class="col-md-3 col-sm-3 col-xs-12 control-label">Measurements
+                    <br>
+                    <small class="text-navy">Select the measurements you would like to make</small>
+                  </label>
+
+                  <div class="col-md-9 col-sm-9 col-xs-12">
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" class="flat" checked="checked" id="do-rate"> Rate
+                    </label>
+                  </div>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" class="flat" checked="checked" id="do-pulse"> Pulse
+                    </label>
+                  </div>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" class="flat" checked="checked" id="do-velocity"> Velocity
+                    </label>
+                  </div>
+                  <div class="checkbox">
+                    <label>
+                      <input type="checkbox" class="flat" id="do-decay"> Decay
+                    </label>
+                  </div>
+                  </div>
+                </div>
+              </fieldset>
+
+
+              <div class="clearfix"></div>
+              <br/>
+
+            <div class="well" style="overflow: auto" id="rate-group">
+              <div class='col-sm-8'>
+              <div class="form-group">
+                <h2>Rate Options</h2>
+                <div class="ln_solid"></div>
+                <div class="input-group input-group-md col-md-8">
+                    <label class="input-group-addon" for="rate-time-window">Time window</label>
+                    <input type="text" class="form-control" id="rate-time-window" placeholder="[ seconds ]">
+                    <!--<span class="input-group-addon">sec</span>-->
+                    <span class="add-on input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                  </div>
+              </div>
+            </div>
+            </div>
+
+            <div class="well" style="overflow: auto" id="velocity-group">
+              <div class='col-sm-8'>
+                <div class="form-group">
+                  <h2>Velocity Options</h2>
+                  <div class="ln_solid"></div>
+                  <div class="input-group input-group-md">
+                    <label class="input-group-addon" for="velocity-upper_channel">Upper channel</label>
+                    <input type="text" class="form-control" id="velocity-upper_channel" placeholder="0">
+                  </div>
+
+                  <div class="input-group input-group-md">
+                    <label class="input-group-addon" for="velocity-lower_channel">Lower channel</label>
+                    <input type="text" class="form-control" id="velocity-lower_channel" placeholder="0">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="well" style="overflow: auto" id="decay-group">
+            <div class='col-sm-8'>
+            <div class="form-group">
+              <h2>Decay Options</h2>
+              <div class="ln_solid"></div>
+              <div class="input-group input-group-md col-md-8">
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-min-single-pulse-width">Min. Single Pulse Width</label>
+                  <input type="text" class="form-control" id="decay-min-single-pulse-width" placeholder="[ nano-seconds ]">
+                  <span class="input-group-addon">ns</span>
+                </div>
+
+                <!--<span class="add-on input-group-addon">
+                    <span class="glyphicon glyphicon-time"></span>
+                </span>-->
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-max-single-pulse-width">Max. Single Pulse Width</label>
+                  <input type="text" class="form-control" id="decay-max-single-pulse-width" placeholder="[ nano-seconds ]">
+                  <span class="input-group-addon">ns</span>
+                </div>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-min-double-pulse-width">Min. Double Pulse Width</label>
+                  <input type="text" class="form-control" id="decay-min-double-pulse-width" placeholder="[ nano-seconds ]">
+                  <span class="input-group-addon">ns</span>
+                </div>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-max-double-pulse-width">Max. Double Pulse Width</label>
+                  <input type="text" class="form-control" id="decay-max-double-pulse-width" placeholder="[ nano-seconds ]">
+                  <span class="input-group-addon">ns</span>
+                </div>
+
+                <br/>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-single_pulse_channel">Single Pulse Channel</label>
+                  <input type="text" class="form-control" id="decay-single_pulse_channel" placeholder="0">
+                  <!--<span class="input-group-addon">ns</span>-->
+                </div>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-double_pulse_channel">Double Pulse Channel</label>
+                  <input type="text" class="form-control" id="decay-double_pulse_channel" placeholder="1">
+                  <!--<span class="input-group-addon">ns</span>-->
+                </div>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-veto_pulse_channel">Veto Pulse Channel</label>
+                  <input type="text" class="form-control" id="decay-veto_pulse_channel" placeholder="2">
+                  <!--<span class="input-group-addon">ns</span>-->
+                </div>
+
+                <div class="input-group input-group-md">
+                  <label class="input-group-addon" for="decay-decay_min_time">Decay min. time</label>
+                  <input type="text" class="form-control" id="decay-decay_min_time" placeholder="[ nano-seconds ]">
+                  <span class="input-group-addon">ns</span>
+                </div>
+
+              </div>
+
+            </div>
+            </div>
+            </div>
+
+            <div class="ln_solid"></div>
+                <div class="form-group">
+                  <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+  		            <button class="btn btn-primary" type="reset">Reset</button>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </div>
+
+            {% csrf_token %}
+
+            </form>
+
+        </div>
+
+      </div>
+      </div>
+    </div>
+
+
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ block.super}}
+
+  <!-- morris.js -->
+  <script src="/static/vendors/raphael/raphael.min.js"></script>
+  <script src="/static/vendors/morris.js/morris.min.js"></script>
+  <script src="/static/vendors/moment/locale/de.js"></script>
+  <script src="/static/vendors/pnotify/dist/pnotify.js"></script>
+  <script src="/static/vendors/pnotify/dist/pnotify.buttons.js"></script>
+  <script src="/static/vendors/pnotify/dist/pnotify.nonblock.js"></script>
+
+
+  <script type="application/javascript" language="JavaScript">
+
+
+
+      $(document).ready(function() {
+
+            var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('#datetimepicker1').datetimepicker({
+                locale: 'de',
+                format: 'YYYY-MM-DDTHH:mm:ss+02:00'
+            });
+
+            var do_rate = false;
+            var do_pulse = false;
+            var do_velocity = false;
+            var do_decay = false;
+
+            function updateSelection() {
+                do_rate = $('#do-rate').is(':checked');
+                do_pulse = $('#do-pulse').is(':checked');
+                do_velocity = $('#do-velocity').is(':checked');
+                do_decay = $('#do-decay').is(':checked');
+
+                if (do_rate) $('#rate-group').show();
+                else $('#rate-group').hide();
+
+                if (do_velocity) $('#velocity-group').show();
+                else $('#velocity-group').hide();
+
+                if (do_decay) $('#decay-group').show();
+                else $('#decay-group').hide();
+            }
+
+            updateSelection();
+
+            $('input').on('ifChanged', function (event) { $(event.target).trigger('change'); });
+
+
+            $('#do-rate').change(function () {
+              do_rate = $(this).is(':checked');
+              if (do_rate) $('#rate-group').show();
+              else $('#rate-group').hide();
+            });
+
+            $('#do-velocity').change(function () {
+              do_velocity = $(this).is(':checked');
+              if (do_velocity) $('#velocity-group').show();
+              else $('#velocity-group').hide();
+
+              if (do_decay && do_velocity) {
+                  $('#do-decay').iCheck('uncheck');
+                  do_decay = false;
+                  var note = new PNotify({
+                            title: 'Incompatible',
+                            text: 'You cannot run both velocity and decay measurements',
+                            type: 'info',
+                            styling: 'bootstrap3',
+                            addclass: 'dark'
+                        });
+              }
+            });
+
+            $('#do-decay').change(function () {
+              do_decay = $(this).is(':checked');
+              if (do_decay) $('#decay-group').show();
+              else $('#decay-group').hide();
+
+              if (do_decay && do_velocity) {
+                  $('#do-velocity').iCheck('uncheck');
+                  do_velocity = false;
+                  var note = new PNotify({
+                            title: 'Incompatible',
+                            text: 'You cannot run both velocity and decay measurements',
+                            type: 'info',
+                            styling: 'bootstrap3',
+                            addclass: 'dark'
+                        });
+              }
+            });
+
+            $('#do-pulse').change(function () {
+              do_pulse = $(this).is(':checked');
+            });
+
+            function resetCheckboxes() {
+                $('#do-decay').iCheck('uncheck');
+                $('#do-rate').iCheck('check');
+                $('#do-velocity').iCheck('check');
+                $('#do-pulse').iCheck('check');
+            }
+
+            $('button[type=submit]').click(function () {
+                data = {
+                    time: $('#start-time').val(),
+                    duration: parseInt($('#duration').val()),
+                    do_rate: do_rate,
+                    do_pulse: do_pulse,
+                    do_velocity: do_velocity,
+                    do_decay: do_decay,
+                    rate_time_window: $('#rate-time-window').val(),
+                    velocity_upper_channel: parseInt($('#velocity-upper_channel').val()),
+                    velocity_lower_channel: parseInt($('#velocity-lower_channel').val()),
+                    decay_min_single_pulse_width: parseFloat($('#decay-min-single-pulse-width').val()),
+                    decay_max_single_pulse_width: parseFloat($('#decay-max-single-pulse-width').val()),
+                    decay_min_double_pulse_width: parseFloat($('#decay-min-double-pulse-width').val()),
+                    decay_max_double_pulse_width: parseFloat($('#decay-max-double-pulse-width').val()),
+                    decay_single_pulse_channel: parseInt($('#decay-single_pulse_channel').val()),
+                    decay_double_pulse_channel: parseInt($('#decay-double_pulse_channel').val()),
+                    decay_veto_pulse_channel: parseInt($('#decay-veto_pulse_channel').val()),
+                    decay_decay_min_time: parseFloat($('#decay-decay_min_time').val())
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: "http://localhost:8000/api/tasks/",
+                    data: data
+                })
+                .done(function( d ) {
+                    var note = new PNotify({
+                        title: 'Done',
+                        text: 'Your run has been scheduled',
+                        type: 'success',
+                        styling: 'bootstrap3'
+                    });
+                    resetCheckboxes();
+                    $('#run-form').trigger("reset");
+                });
+                return false;
+
+            });
+
+            $('button[type=reset]').click(function () {
+                resetCheckboxes();
+                $('#run-form').trigger("reset");
+            });
+
+      });
+
+  </script>
+
+{% endblock javascripts %}

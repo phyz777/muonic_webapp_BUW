@@ -1,0 +1,369 @@
+{% extends "app/base_site.html" %}
+
+{% block title %} Run Details {% endblock title %}
+
+{% block stylesheets %}
+  {{ block.super }}
+{% endblock stylesheets %}
+
+{% block sidebar_class %}nav-md menu_fixed{% endblock sidebar_class %}
+
+{% block content %}
+  <div class="right_col" role="main">
+
+    <div class="">
+
+      <div class="page-title">
+        <div class="title_left">
+          <h3>Run <small>{{ request.GET.run_id }}</small></h3>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="clearfix"></div>
+
+      <div class="row">
+
+        <!-- line graph -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Rates <small>in 1/s</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content2">
+              <div id="rate" style="width:100%; height:300px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /line graph -->
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Flight times <small>in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="velocity" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="row">
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Pulses Ch. 1 <small>pulse width in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="pulse0" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Pulses Ch. 2 <small>pulse width in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="pulse1" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Pulses Ch. 3 <small>pulse width in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="pulse2" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Pulses Ch. 4 <small>pulse width in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="pulse3" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+      <div class="clearfix"></div>
+
+        <!-- bar chart -->
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="x_panel">
+            <div class="x_title">
+              <h2>Decays <small>decay time in ns</small></h2>
+              <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+              </ul>
+              <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+              <div id="decay" style="width:100%; height:280px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- /bar charts -->
+
+    </div>
+
+    <div class="clearfix"></div>
+
+
+  </div>
+{% endblock content %}
+
+{% block javascripts %}
+  {{ block.super}}
+
+  <!-- morris.js -->
+  <script src="/static/vendors/raphael/raphael.min.js"></script>
+  <script src="/static/vendors/morris.js/morris.min.js"></script>
+
+  <script type="application/javascript" language="JavaScript">
+
+      function createHist(low, up, nbins) {
+          var binWidth = (up - low)/nbins;
+          var hist = [];
+          for (i = low; i <= up; i+=binWidth) {
+              hist.push({bin: i, value: 0});
+          }
+          hist.low = low;
+          hist.up = up;
+          hist.nbins = nbins;
+          hist.binWidth = binWidth;
+          hist.entries = 0;
+          return hist;
+      }
+
+      function fillHist(hist, value) {
+          if(value == null) return;
+          if(value > hist.up || value < hist.low) return;
+          bin = Math.floor((value - hist.low) / hist.binWidth)
+          hist[bin].value += 1;
+          hist.entries += 1;
+      }
+
+      $(document).ready(function() {
+
+        var velChart = Morris.Bar({
+            element: 'velocity',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var pulseChart0 = Morris.Bar({
+            element: 'pulse0',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var pulseChart1 = Morris.Bar({
+            element: 'pulse1',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var pulseChart2 = Morris.Bar({
+            element: 'pulse2',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var pulseChart3 = Morris.Bar({
+            element: 'pulse3',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var decayChart = Morris.Bar({
+            element: 'decay',
+            data: [],
+            xkey: 'bin',
+            ykeys: ['value'],
+            labels: ['Entries'],
+            barRatio: 0.4,
+            barColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB'],
+            xLabelAngle: 35,
+            hideHover: 'auto',
+            resize: true
+        });
+
+        var rateChart = Morris.Line({
+            element: 'rate',
+            xkey: 'query_time',
+            ykeys: ['rate_ch0', 'rate_ch1', 'rate_ch2', 'rate_ch3', 'rate_cht'],
+            labels: ['Ch 1', 'Ch 2', 'Ch 3', 'Ch 4', 'Trigger'],
+            hideHover: 'auto',
+            lineColors: ['#26B99A', '#34495E', '#ACADAC', '#3498DB', '#996666'],
+            data: [],
+            resize: true
+        });
+
+        $MENU_TOGGLE.on('click', function() {
+            $(window).resize();
+        });
+
+        var rates = [];
+        var flightTimes = createHist(0, 20, 10);
+        var decayTimes = createHist(0, 20, 10);
+        var pulsesCh0 = createHist(0, 50, 25);
+        var pulsesCh1 = createHist(0, 50, 25);
+        var pulsesCh2 = createHist(0, 50, 25);
+        var pulsesCh3 = createHist(0, 50, 25);
+
+
+        var updateRates = function () {
+          $.ajax({
+              url: "http://localhost:8000/api/muonic/rates/?run={{ request.GET.run_id }}&limit=500&offset=" + rates.length,
+          })
+          .done(function( d ) {
+              rates.push.apply(rates, d.results);
+              rateChart.setData(rates);
+          });
+        }
+
+        var updateVelocity = function () {
+          $.ajax({
+              url: "http://localhost:8000/api/muonic/velocities/?run={{ request.GET.run_id }}&limit=500&offset=" + flightTimes.entries,
+          })
+          .done(function( d ) {
+              d.results.forEach(function(item, index) {
+                  fillHist(flightTimes, item.flight_time);
+              });
+              velChart.setData(flightTimes);
+          });
+        }
+
+        var updateDecay = function () {
+          $.ajax({
+              url: "http://localhost:8000/api/muonic/decays/?run={{ request.GET.run_id }}&limit=500&offset=" + decayTimes.entries,
+          })
+          .done(function( d ) {
+              d.results.forEach(function(item, index) {
+                  fillHist(decayTimes, item.decayTime);
+              });
+              decayChart.setData(decayTimes);
+          });
+        }
+
+        var updatePulses = function () {
+          $.ajax({
+              url: "http://localhost:8000/api/muonic/pulses/?run={{ request.GET.run_id }}&limit=500&offset=" + pulsesCh0.entries,  //TODO: fix!!!
+          })
+          .done(function( d ) {
+              d.results.forEach(function(item, index) {
+                  fillHist(pulsesCh0, item.pulse_width_ch0);
+                  fillHist(pulsesCh1, item.pulse_width_ch1);
+                  fillHist(pulsesCh2, item.pulse_width_ch2);
+                  fillHist(pulsesCh3, item.pulse_width_ch3);
+              });
+              pulseChart0.setData(pulsesCh0);
+              pulseChart1.setData(pulsesCh1);
+              pulseChart2.setData(pulsesCh2);
+              pulseChart3.setData(pulsesCh3);
+          });
+        }
+
+        updateRates();
+        updateVelocity();
+        updatePulses();
+        updateDecay();
+
+        if("{{ request.GET.active }}" == 'true') {
+            setInterval(function () {
+                updateRates();
+                updateVelocity();
+                updatePulses();
+                updateDecay();
+            } ,3000);
+        }
+
+
+      });
+
+  </script>
+
+{% endblock javascripts %}
